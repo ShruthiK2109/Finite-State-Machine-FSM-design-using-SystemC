@@ -1,0 +1,143 @@
+// Code your design here
+#include "systemc.h"
+
+SC_MODULE(fsm)
+{
+    sc_in<sc_logic> Input, RESET, CLK;
+    sc_out<sc_logic> Op;
+
+    enum states {S0, S1, S2, S3, S4,S5,S6,S7,S8,S9,S10};
+    sc_signal<states> ps, ns;
+
+    SC_CTOR(fsm)
+    {
+        ps.write(S0);
+        ns.write(S0);
+
+        SC_METHOD(fsm_procedure);
+        sensitive <<Input << ps << CLK << RESET;
+     }
+    
+void fsm_procedure()
+{
+    Op = SC_LOGIC_0;
+    ns = S0;
+
+    switch (ps.read())
+    {
+    case S0:
+        if (Input == SC_LOGIC_1) ns = S1;
+        else ns = S0;
+        break;
+    case S1:
+        if (Input == SC_LOGIC_1) ns = S2;
+        else ns = S0;
+        break;
+    case S2:
+        if (Input == SC_LOGIC_1) ns = S3;
+        else ns = S0;
+        break;
+    case S3:
+        if (Input == SC_LOGIC_1) ns = S4;
+        else ns = S0;
+        break;
+    case S4:
+        if (Input == SC_LOGIC_1) ns = S5;
+        else ns = S0;
+        break;
+      case S5:
+        if (Input == SC_LOGIC_1) ns = S6;
+        else ns = S0;
+        break;
+      case S6:
+        if (Input == SC_LOGIC_1) ns = S7;
+        else ns = S0;
+        break;
+      case S7:
+        if (Input == SC_LOGIC_1) ns = S8;
+        else ns = S0;
+        break;
+      case S8:
+        if (Input == SC_LOGIC_1) ns = S9;
+        else ns = S0;
+        break;
+      case S9:
+        if (Input == SC_LOGIC_1) ns = S10;
+        else ns = S0;
+        break;
+      case S10:
+        if (Input == SC_LOGIC_1) ns = S10;
+        else ns = S0;
+        break;
+    }
+
+    if (ps == S10 && Input == SC_LOGIC_0) 
+        Op = SC_LOGIC_1;
+}
+
+};
+
+
+// Code your testbench here
+// or browse Examples
+#include <systemc.h>
+#include "design.cpp"
+
+
+using namespace std;
+
+int sc_main(int argc, char* argv[]){
+    cout << "starting fsm" << endl;
+  
+    sc_signal<sc_logic>Input, RESET, CLK;
+    sc_signal<sc_logic> Op;
+
+    fsm FSM ("fsm");
+    FSM (Input ,RESET, Op,CLK);
+    
+    sc_trace_file *wf = sc_create_vcd_trace_file("fsm");
+    sc_trace (wf, Input, "Input");
+    sc_trace (wf, Op, "Op");
+    sc_trace (wf, RESET, "RESET");
+    sc_trace (wf, CLK, "CLK");
+  int i;
+  Input= SC_LOGIC_1;   
+  RESET=SC_LOGIC_0;
+  for (i=0;i<5;i++) {
+    CLK = SC_LOGIC_0 ; 
+    sc_start(1, SC_NS);
+    CLK = SC_LOGIC_1; 
+    sc_start(1, SC_NS);
+  }
+  
+  Input = SC_LOGIC_1; 
+  RESET=SC_LOGIC_1;
+  for (i=0;i<3;i++) {
+    CLK = SC_LOGIC_0; 
+    sc_start(1, SC_NS);
+    CLK = SC_LOGIC_1; 
+    sc_start(1, SC_NS);
+  }
+  
+  Input = SC_LOGIC_1;  
+  RESET=SC_LOGIC_0;
+  for (i=0;i<6;i++) {
+    CLK = SC_LOGIC_0; 
+    sc_start(1, SC_NS);
+    CLK = SC_LOGIC_1; 
+    sc_start(1, SC_NS);
+    
+  Input=SC_LOGIC_0;
+  }
+  for (int i=0; i<4 ;i++){
+        CLK = SC_LOGIC_0;
+        sc_start(1,SC_NS);
+    	CLK = SC_LOGIC_1; 
+    	sc_start(1, SC_NS);
+    }
+  
+  sc_close_vcd_trace_file(wf);
+    
+
+    return 0;
+}
